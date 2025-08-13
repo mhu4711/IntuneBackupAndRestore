@@ -40,12 +40,13 @@ function Invoke-IntuneBackupConfigurationPolicy {
 
 		foreach ($configurationPolicy in $configurationPolicies) {
 			$configurationPolicy | Add-Member -MemberType NoteProperty -Name 'settings' -Value @() -Force
-			$settings = (Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/configurationPolicies/$($configurationPolicy.id)/settings").value
-	
+			
+			$settings = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/configurationPolicies/$($configurationPolicy.id)/settings" | Get-MGGraphAllPages
+			
 			if ($settings -isnot [System.Array]) {
-				$configurationPolicy.Settings = @($settings)
+				$configurationPolicy.settings = @($settings)
 			} else {
-				$configurationPolicy.Settings = $settings
+				$configurationPolicy.settings = $settings
 			}
 			
 			$fileName = ($configurationPolicy.name).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
